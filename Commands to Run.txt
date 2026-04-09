@@ -1,0 +1,76 @@
+cd "C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT"
+
+python -m venv .venv
+
+& "C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT\.venv\Scripts\Activate.ps1"
+
+pip install opencv-python Pillow colorama termcolor pyfiglet rich pycryptodome
+
+cd Video-steganography
+
+& "C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT\.venv\Scripts\python.exe" video_Process.py
+
+
+
+//WORKING PART BELOW
+
+& "C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT\.venv\Scripts\python.exe" "C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT\Video-steganography\video_Process.py"
+
+When it finishes, look for:
+C:\Users\shash\OneDrive\Desktop\NIE INTERNSHIP PROJECT\Video-steganography\final_lossless.mkv
+hen for decode:
+
+Choose 2
+Give the path to final_lossless.mkv
+Use the same password, or blank if you left it blank
+
+
+//FOR VERIFICATION
+
+cd ..
+
+ffmpeg -i file_example_MP4_480_1_5MG.mp4 -frames:v 1 Video-steganography/frame0_orig.png -y     
+
+ffmpeg -i Video-steganography/final_lossless.mkv -frames:v 1 Video-steganography/frame0_stego.png -y
+
+ffmpeg -i Video-steganography/frame0_orig.png -i Video-steganography/frame0_stego.png -lavfi psnr -f null - 2>&1 | findstr "Parsed_psnr"
+
+python -c "import cv2; img1 = cv2.imread('Video-steganography/frame0_orig.png'); img2 = cv2.imread('Video-steganography/frame0_stego.png'); diff = img1 != img2; print('Pixels differing:', diff.sum()); print('Sample top-left 3x3 orig LSB:', img1[0:3,0:3,0] & 1); print('Sample top-left 3x3 stego LSB:', img2[0:3,0:3,0] & 1)"
+
+WHAT IT MEANS
+
+1. First command (extract original frame)
+
+Extracts the first frame from original video
+Used as baseline for comparison
+
+2. Second command (extract stego frame)
+
+Extracts the same frame from encoded (stego) video
+Used to check changes after hiding data
+
+3. Third command (PSNR)
+
+Compares both images and measures quality difference
+Higher value = images are almost identical
+
+4. Fourth command (Python LSB + diff)
+
+Counts how many pixels changed
+Shows LSB bits to prove hidden data is stored there
+RESULT: Pixel difference (284 pixels):
+
+Only a few pixels changed out of thousands
+This proves data is hidden with minimal modification
+
+
+PSNR Full Form:
+👉 Peak Signal-to-Noise Ratio
+
+What PSNR values mean (simple):
+
+> 50 dB → Almost identical (excellent, no visible difference)
+40 – 50 dB → Very high quality (hard to notice difference)
+30 – 40 dB → Good quality (slight difference)
+20 – 30 dB → Poor quality (visible distortion)
+< 20 dB → Very poor (major distortion)
